@@ -45,10 +45,15 @@ public:
 		return sqrt(LengthSquared());
 	}
 
-	void WriteColor(std::ostream& out) {
-		out << static_cast<int>(255.999 * e[0]) << ' '
-			<< static_cast<int>(255.999 * e[1]) << ' '
-			<< static_cast<int>(255.999 * e[2]) << '\n';
+	void WriteColor(std::ostream& out, int sample_num) {
+		double weight = 1.0f / sample_num;
+		auto r = e[0] * weight;
+		auto g = e[1] * weight;
+		auto b = e[2] * weight;
+
+		out << static_cast<int>(256 * Clamp(r, 0.0f, 0.999f)) << ' '
+			<< static_cast<int>(256 * Clamp(g, 0.0f, 0.999f)) << ' '
+			<< static_cast<int>(256 * Clamp(b, 0.0f, 0.999f)) << '\n';
 	}
 
 public:
@@ -83,19 +88,22 @@ inline vec3 operator*(const vec3& v, double t) {
 inline vec3 operator/(vec3 v, double t) {
 	return (1 / t) * v;
 }
+inline vec3 operator-(const vec3& v) {
+	return vec3(-v.x(), -v.y(), -v.z());
+}
 
-inline double dot(const vec3& u, const vec3& v) {
+inline double Dot(const vec3& u, const vec3& v) {
 	return u.e[0] * v.e[0]
 		+ u.e[1] * v.e[1]
 		+ u.e[2] * v.e[2];
 }
 
-inline vec3 cross(const vec3& u, const vec3& v) {
+inline vec3 Cross(const vec3& u, const vec3& v) {
 	return vec3(u.e[1] * u.e[2] - u.e[2] * v.e[1],
 		u.e[2] * u.e[1] - u.e[1] * v.e[2],
 		u.e[0] * u.e[1] - u.e[1] * v.e[0]);
 }
 
-inline vec3 unit_vector(vec3 v) {
+inline vec3 Unit_vector(vec3 v) {
 	return v / v.Length();
 }

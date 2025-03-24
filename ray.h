@@ -2,19 +2,19 @@
 
 #include "vec3.h"
 
-class ray {
+class Ray {
 public:
-	ray() :dir(vec3(0.0f, 0.0f, 0.0f)), orig(vec3(0.0f, 0.0f, 0.0f)) {}
-	ray(const vec3& origin, const vec3& dirction) : dir(dirction), orig(origin) {}
+	Ray() :dir(vec3(0.0f, 0.0f, 0.0f)), orig(vec3(0.0f, 0.0f, 0.0f)) {}
+	Ray(const vec3& Origin, const vec3& dirction) : dir(dirction), orig(Origin) {}
 
-	vec3 origin() const {
+	vec3 Origin() const {
 		return orig;
 	}
-	vec3 direction() const {
+	vec3 Direction() const {
 		return dir;
 	}
 
-	vec3 at(double t) {
+	vec3 At(double t) const {
 		return orig + dir * t;
 	}
 public:
