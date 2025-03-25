@@ -24,6 +24,10 @@ inline double RandomDouble() {
 	return rand_generator();
 }
 
+inline double RandomDouble(double min, double max) {
+	return min + (max - min) * RandomDouble();
+}
+
 inline double Clamp(double x, double min, double max) {
 	if (x < min) return min;
 	if (x > max) return max;

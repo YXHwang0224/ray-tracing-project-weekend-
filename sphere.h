@@ -1,17 +1,18 @@
 #pragma once
 
-#include "Hittable.h"
+#include "hittable.h"
 
 class Sphere :public Hittable {
 public:
 	Sphere() {}
-	Sphere(vec3 cen, double rad) : center(cen), radius(rad) {};
+	Sphere(vec3 cen, double rad, shared_ptr<Material> mat) : center(cen), radius(rad), mat_ptr(mat) {};
 
 	virtual bool Hit(const Ray& r, HitRecord& rec, double t_min, double t_max) const;
 
 public:
 	vec3 center;
 	double radius;
+	shared_ptr<Material> mat_ptr;
 };
 
 bool Sphere::Hit(const Ray& r, HitRecord& rec, double t_min, double t_max) const {
@@ -28,6 +29,7 @@ bool Sphere::Hit(const Ray& r, HitRecord& rec, double t_min, double t_max) const
 			rec.pos = r.At(rec.t);
 			vec3 outward_normal = (rec.pos - center) / radius;
 			rec.SetFaceNormal(r, outward_normal);
+			rec.mat_ptr = mat_ptr;
 			return true;
 		}
 		double res_right = (-half_b + sqrt(discriminant)) / a;
@@ -36,6 +38,7 @@ bool Sphere::Hit(const Ray& r, HitRecord& rec, double t_min, double t_max) const
 			rec.pos = r.At(rec.t);
 			vec3 outward_normal = (rec.pos - center) / radius;
 			rec.SetFaceNormal(r, outward_normal);
+			rec.mat_ptr = mat_ptr;
 			return true;
 		}
 	}

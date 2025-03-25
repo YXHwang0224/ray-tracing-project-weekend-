@@ -1,6 +1,8 @@
 #pragma once
 
-#include "Ray.h"
+#include "ray.h"
+
+class Material;
 
 class HitRecord {
 public:
@@ -8,6 +10,7 @@ public:
 	double t;
 	vec3 normal;
 	bool front_face;
+	shared_ptr<Material> mat_ptr;
 
 	inline void SetFaceNormal(const Ray& r, const vec3& outward_normal) {
 		front_face = Dot(r.Direction(), outward_normal) < 0;		//利用向外法线与光源方向求点乘，为负则向外
