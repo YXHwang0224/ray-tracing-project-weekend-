@@ -5,7 +5,7 @@
 class Sphere :public Hittable {
 public:
 	Sphere() {}
-	Sphere(vec3 cen, double rad, shared_ptr<Material> mat) : center(cen), radius(rad), mat_ptr(mat) {};
+	Sphere(const vec3& cen, double rad, shared_ptr<Material> mat) : center(cen), radius(rad), mat_ptr(mat) {};
 
 	virtual bool Hit(const Ray& r, HitRecord& rec, double t_min, double t_max) const;
 
@@ -23,7 +23,7 @@ bool Sphere::Hit(const Ray& r, HitRecord& rec, double t_min, double t_max) const
 	auto discriminant = half_b * half_b - a * c;//求根公式
 
 	if (discriminant > 0) {
-		double res_left = (-half_b - sqrt(discriminant)) / a;
+		double res_left = (- half_b - sqrt(discriminant)) / a;
 		if (res_left<t_max && res_left>t_min) {
 			rec.t = res_left;
 			rec.pos = r.At(rec.t);
@@ -32,8 +32,8 @@ bool Sphere::Hit(const Ray& r, HitRecord& rec, double t_min, double t_max) const
 			rec.mat_ptr = mat_ptr;
 			return true;
 		}
-		double res_right = (-half_b + sqrt(discriminant)) / a;
-		if (res_right<t_max && res_right>t_max) {
+		double res_right = (- half_b + sqrt(discriminant)) / a;
+		if (res_right<t_max && res_right>t_min) {
 			rec.t = res_right;
 			rec.pos = r.At(rec.t);
 			vec3 outward_normal = (rec.pos - center) / radius;

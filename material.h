@@ -14,7 +14,7 @@ public:
 	Lambertian(const vec3& albe) : albedo(albe) {}
 
 	virtual bool scatter(const Ray& ray_in, const HitRecord& rec, vec3& attenuation, Ray& scattered) const {
-		vec3 scatter_dir = rec.normal + RandomUnitVector();
+		vec3 scatter_dir = rec.normal + RandomInUintSphere();
 		scattered = Ray(rec.pos, scatter_dir);
 		attenuation = albedo;
 		return true;
@@ -29,10 +29,10 @@ public:
 	Metal(const vec3& albe, double fuz) : albedo(albe), fuzz(fuz < 1.0f ? fuz : 1.0f) {}
 
 	virtual bool scatter(const Ray& ray_in, const HitRecord& rec, vec3& attenuation, Ray& scattered) const {
-		vec3 reflected = Reflect(ray_in.Direction(), rec.normal);
-		scattered = Ray(rec.pos, reflected);
+		vec3 reflected = Reflect(UnitVector(ray_in.Direction()), rec.normal);
+		scattered = Ray(rec.pos, reflected + fuzz * RandomInUintSphere());
 		attenuation = albedo;
-		return (Dot(scattered.Direction(), rec.normal) > 0.0f);//dot的值小于0认为吸收
+		return (Dot(scattered.Direction(), rec.normal) > 0);//dot的值小于0认为吸收
 	}
 
 public:
@@ -40,6 +40,7 @@ public:
 	double fuzz;//模糊程度，0表示不模糊
 };
 
+//近似计算发生反射的概率
 double Schlick(double cosine, double ref_idx) {
 	auto r0 = (1 - ref_idx) / (1 + ref_idx);
 	r0 = r0 * r0;
@@ -57,14 +58,10 @@ public:
 		vec3 unit_dir = UnitVector(ray_in.Direction());	//对入射光进行归一化
 		double cos_theta = std::min(Dot(-unit_dir, rec.normal), 1.0);
 		double sin_theta = sqrt(1.0 - cos_theta * cos_theta);
-		if (sin_theta * etai_over_etat > 1.0f) {		//在此情况视为反射
-			vec3 reflected = Reflect(unit_dir, rec.normal);
-			scattered = Ray(rec.pos, reflected);
-			return true;
-		}
 
+		bool cannot_refract = etai_over_etat * sin_theta > 1.0;
 		double reflect_prob = Schlick(cos_theta, etai_over_etat);		//玻璃也有反射
-		if (RandomDouble() < reflect_prob)
+		if (cannot_refract || RandomDouble() < reflect_prob)
 		{
 			vec3 reflected = Reflect(unit_dir, rec.normal);
 			scattered = Ray(rec.pos, reflected);

@@ -49,7 +49,7 @@ public:
 		return vec3(RandomDouble(), RandomDouble(), RandomDouble());
 	}
 
-	inline static vec3 Random(double max, double min) {
+	inline static vec3 Random(double min, double max) {
 		return vec3(RandomDouble(min, max), RandomDouble(min, max), RandomDouble(min, max));
 	}
 
@@ -94,7 +94,7 @@ inline vec3 operator*(const vec3& v, double t) {
 }
 
 inline vec3 operator/(vec3 v, double t) {
-	return (1 / t) * v;
+	return (1.0f / t) * v;
 }
 inline vec3 operator-(const vec3& v) {
 	return vec3(-v.x(), -v.y(), -v.z());
@@ -107,9 +107,9 @@ inline double Dot(const vec3& u, const vec3& v) {
 }
 
 inline vec3 Cross(const vec3& u, const vec3& v) {
-	return vec3(u.e[1] * u.e[2] - u.e[2] * v.e[1],
-		u.e[2] * u.e[1] - u.e[1] * v.e[2],
-		u.e[0] * u.e[1] - u.e[1] * v.e[0]);
+	return vec3(u.e[1] * v.e[2] - u.e[2] * v.e[1],
+		u.e[2] * v.e[0] - u.e[0] * v.e[2],
+		u.e[0] * v.e[1] - u.e[1] * v.e[0]);
 }
 
 inline vec3 UnitVector(vec3 v) {
@@ -123,9 +123,9 @@ inline vec3 Reflect(const vec3& v, const vec3& n) {
 
 //计算折射光
 inline vec3 Refract(const vec3& v, const vec3& n, double etai_over_etat) {
-	double cos_theta = Dot(-v, n);
+	double cos_theta = std::min(Dot(-v, n), 1.0);
 	vec3 out_parallel = etai_over_etat * (v + cos_theta * n);
-	vec3 out_perp = -sqrt(1.0f - out_parallel.LengthSquared()) * n;
+	vec3 out_perp = -sqrt(std::fabs(1.0f - out_parallel.LengthSquared())) * n;
 	return out_parallel + out_perp;
 }
 
@@ -141,17 +141,26 @@ inline vec3 RandomInUintSphere() {
 
 //少的光线会朝着法线方向散射
 inline vec3 RandomUnitVector() {
-	auto a = RandomDouble(0, 2 * pi);		//在0到2Π中找一个度数
+	auto a = RandomDouble(0, 2 * pi);		//在0到2Π 
 	auto z = RandomDouble(-1, 1);			//z值在-1到1之间
 	auto r = sqrt(1 - z * z);				//保证为单位向量
 	return vec3(r * cos(a), r * sin(a), z);
 }
 
 //最好的方法，完全随机产生一个角度，再判断其是否指向表面外
-inline vec3 RandomInHemisphere(const vec3& normal) {
+inline vec3 RandomInHemiSphere(const vec3& normal) {
 	vec3 in_unit_sphere = RandomInUintSphere();
 	if (Dot(in_unit_sphere, normal) > 0.0f)
 		return in_unit_sphere;
 	else
 		return -in_unit_sphere;
+}
+
+//vec3.h 从一个单位小圆盘射出光线
+vec3 RandomInUnitDisk() {
+	while (true) {
+		auto p = vec3(RandomDouble(-1, 1), RandomDouble(-1, 1), 0);
+		if (p.LengthSquared() >= 1) continue;
+		return p;
+	}
 }
