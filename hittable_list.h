@@ -29,7 +29,7 @@ bool HittableList::Hit(const Ray& r, HitRecord& rec, double t_min, double t_max)
 	HitRecord rec_temp;
 	for (const auto& obj : objects) {
 		if (obj->Hit(r, rec_temp, t_min, clostest_t)) {
-			clostest_t = rec.t;
+			clostest_t = rec_temp.t;
 			if_Hit = true;
 			rec = rec_temp;
 		}
